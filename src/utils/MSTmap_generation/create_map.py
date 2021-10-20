@@ -78,7 +78,7 @@ def create_map(video_dir, save_dir):
     save_maps(st_map, video_dir, save_dir)
 
 
-def save_maps(st_map, video_dir,save_dir):
+def save_maps(st_map, video_dir, save_dir):
     gt_hr_file_path = video_dir + "gt_HR.csv"
     time_file_path = video_dir + "time.txt"
     BVP_file_path = video_dir + "wave.csv"
@@ -105,6 +105,11 @@ def save_maps(st_map, video_dir,save_dir):
     save_dir = config.PROJECT_ROOT + config.DATA_PATH + save_dir
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
+        with open((config.PROJECT_ROOT+config.train_data_paths),'w+') as f:
+            f.write(save_dir+"\n")
+    else:
+        for file in os.listdir(save_dir):
+            os.remove(save_dir + '/' + file)
 
     for idx in range(clip_num):
         start_idx = int(0.5 * fps * idx)
@@ -143,20 +148,14 @@ def save_maps(st_map, video_dir,save_dir):
             "bvp": bvp,
         }
 
-
-
-        save_path = dir + "/{}.npy".format(idx)
+        save_path = save_dir + "/{}.npy".format(idx)
         np.save(save_path, train_data)
 
 
 if __name__ == "__main__":
-    path = config.PROJECT_ROOT+config.DATA_PATH+"train"+"test1.npy"
+    path = config.PROJECT_ROOT + config.DATA_PATH + "train" + "test1.npy"
     data = np.load(path, allow_pickle=True).item()
     plt.figure()
     plt.imshow(data["yuv_map"])
     plt.show()
     print(data.keys())
-
-
-
-
