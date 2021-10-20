@@ -146,11 +146,11 @@ begin_epoch = 1;
 scheduler = MultiStepLR(optimizer, milestones=[30,80], gamma=0.5)
 for epoch in range(begin_epoch, epoch_num + 1):
     if epoch > 20:
-        train_dataset.transform = transforms.Compose([resize, toTensor]);
+        train_dataset.transform = transforms.Compose([resize, toTensor])
         train_dataset.VerticalFlip = False;
 
         train_loader = DataLoader(train_dataset, batch_size=batch_size_num,
-                                  shuffle=True, num_workers=4);
+                                  shuffle=True, num_workers=4)
 
     train();
     test();

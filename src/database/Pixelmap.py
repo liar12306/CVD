@@ -13,10 +13,12 @@ from src import config
 
 import torchvision.transforms.functional as transF
 import random
+
+
 # from skimage import io, transform
 
 class PixelMap_fold_STmap(Dataset):
-    def __init__(self, root_dir, Training=True, transform=None, VerticalFlip = False, video_length = 300):
+    def __init__(self, root_dir, Training=True, transform=None, VerticalFlip=False, video_length=300):
 
         self.train = Training
         self.root_dir = root_dir
@@ -26,9 +28,10 @@ class PixelMap_fold_STmap(Dataset):
         self.VerticalFlip = VerticalFlip
         self.data_list = []
         train_file = config.PROJECT_ROOT + config.train_data_paths
-        with open(train_file,'r') as f:
+        with open(train_file, 'r') as f:
             for line in f.readlines():
                 self.data_list.append(line.strip('\n'))
+
     def __len__(self):
 
         return len(self.data_list)
@@ -54,7 +57,7 @@ class PixelMap_fold_STmap(Dataset):
             feature_map1 = self.transform(feature_map1)
             feature_map2 = self.transform(feature_map2)
 
-        feature_map = torch.cat((feature_map1, feature_map2), dim = 0);
+        feature_map = torch.cat((feature_map1, feature_map2), dim=0);
 
         bpm_path = self.root_dir + str(dir_idx) + '/bpm.mat';
         bpm = sio.loadmat(bpm_path)['bpm'];

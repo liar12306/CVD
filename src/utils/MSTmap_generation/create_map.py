@@ -54,7 +54,7 @@ def get_signal_map(rois, roi_num, roi_pix_nums):
     return signal_map
 
 
-def create_map(video_dir, save_dir):
+def create_map(video_dir, prefix):
     video_path = video_dir + "video.avi"
 
     # 获取视频帧
@@ -75,10 +75,10 @@ def create_map(video_dir, save_dir):
             maxx = tmp_channel_data.max()
             st_map[idx, :, c] = (tmp_channel_data - minn) / (maxx - minn) * 255
 
-    save_maps(st_map, video_dir, save_dir)
+    save_maps(st_map, video_dir, prefix)
 
 
-def save_maps(st_map, video_dir, save_dir):
+def save_maps(st_map, video_dir, prefix):
     gt_hr_file_path = video_dir + "gt_HR.csv"
     time_file_path = video_dir + "time.txt"
     BVP_file_path = video_dir + "wave.csv"
@@ -102,11 +102,10 @@ def save_maps(st_map, video_dir, save_dir):
     frame_num = st_map.shape[1]
     # 每0.5s提取一次300帧长度
     clip_num = int((frame_num - clip_length) / fps * 2)
-    save_dir = config.PROJECT_ROOT + config.DATA_PATH + save_dir
+    save_dir = config.PROJECT_ROOT + config.DATA_PATH
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
-        with open((config.PROJECT_ROOT+config.train_data_paths),'w+') as f:
-            f.write(save_dir+"\n")
+
     else:
         for file in os.listdir(save_dir):
             os.remove(save_dir + '/' + file)
@@ -148,7 +147,13 @@ def save_maps(st_map, video_dir, save_dir):
             "bvp": bvp,
         }
 
-        save_path = save_dir + "/{}.npy".format(idx)
+        save_path = save_dir + "/{}{}.npy".format(prefix, idx)
+        if os.path.exists(save_path):
+
+            os.remove(save_path)
+        else:
+            with open((config.PROJECT_ROOT + config.train_data_paths), 'w+') as f:
+                f.write(save_dir + "\n")
         np.save(save_path, train_data)
 
 
