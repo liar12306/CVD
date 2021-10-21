@@ -41,8 +41,8 @@ class PixelMap_fold_STmap(Dataset):
         data_path = self.data_list[0]
         data = np.load(data_path, allow_pickle=True).item()
 
-        feature_map1 = data["rbg_map"]
-        feature_map2 = data["yuv_map"]
+        feature_map1 = Image.fromarray(data["rgb_map"])
+        feature_map2 = Image.fromarray(data["yuv_map"])
 
         if self.VerticalFlip:
             if random.random() < 0.5:
@@ -62,7 +62,7 @@ class PixelMap_fold_STmap(Dataset):
         fps = fps.astype('float32')
 
         bvp = data['bvp']
-        bvp = bvp.astype('float32');
+        bvp = bvp.astype('float32')
         bvp = bvp[0]
 
         return (feature_map, bpm, fps, bvp, idx)

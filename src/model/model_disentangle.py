@@ -8,7 +8,7 @@ import scipy.io as sio
 
 sys.path.append('..');
 
-from utils.model.resnet import resnet18, resnet18_part;
+from src.model.resnet import resnet18, resnet18_part;
 import time
 
 class ResidualBlock(nn.Module):

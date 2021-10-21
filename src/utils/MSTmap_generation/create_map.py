@@ -125,7 +125,7 @@ def save_maps(st_map, video_dir, prefix):
         map_clip = st_map[:, start_idx:end_idx, :].astype(np.uint8)
 
         # 每分钟心跳次数
-        bpm = gt_tmp * clip_num / fps / 60
+        bpm = gt_tmp / clip_num / fps / 60
 
         #
         bvp_begin = int(start_idx / frame_num * len(bvp_data))
@@ -147,13 +147,13 @@ def save_maps(st_map, video_dir, prefix):
             "bvp": bvp,
         }
 
-        save_path = save_dir + "/{}{}.npy".format(prefix, idx)
+        save_path = save_dir + "{}{}.npy".format(prefix, idx)
         if os.path.exists(save_path):
 
             os.remove(save_path)
         else:
-            with open((config.PROJECT_ROOT + config.train_data_paths), 'w+') as f:
-                f.write(save_dir + "\n")
+            with open((config.PROJECT_ROOT + config.train_data_paths), 'a+') as f:
+                f.write(save_path + "\n")
         np.save(save_path, train_data)
 
 
