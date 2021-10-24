@@ -1,7 +1,7 @@
-from src import config
+import sys
+sys.path.append("../..")
 from tqdm import tqdm
 from MSTmap_generation.create_map import *
-
 def map_generation():
     with open(config.video_data_list_file) as f:
 
