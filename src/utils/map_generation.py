@@ -12,7 +12,8 @@ def map_generation():
             prefix = path.replace("/" , "_")
             video_dir = config.video_path+path
             time_file_path = video_dir + "time.txt"
-
+            if not os.path.exists(time_file_path):
+                continue
             create_map(video_dir, prefix)
 
 
