@@ -139,7 +139,7 @@ def save_maps(st_map, video_dir, prefix,fps):
         if os.path.exists(save_path):
             os.remove(save_path)
         else:
-            print(save_path)
+
             with open((config.PROJECT_ROOT + config.train_data_paths), 'a+') as f:
                 f.write(save_path + "\n")
 
