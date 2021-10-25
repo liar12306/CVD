@@ -106,10 +106,6 @@ def save_maps(st_map, video_dir, prefix):
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
-    else:
-        for file in os.listdir(save_dir):
-            os.remove(save_dir + '/' + file)
-
     for idx in range(clip_num):
         start_idx = int(0.5 * fps * idx)
         if start_idx + clip_length - 1 > frame_num:
@@ -149,15 +145,17 @@ def save_maps(st_map, video_dir, prefix):
 
         save_path = save_dir + "{}{}.npy".format(prefix, idx)
         if os.path.exists(save_path):
-
             os.remove(save_path)
         else:
+            print(save_path)
             with open((config.PROJECT_ROOT + config.train_data_paths), 'a+') as f:
                 f.write(save_path + "\n")
+
         np.save(save_path, train_data)
 
 
 if __name__ == "__main__":
+    pass
     path = config.PROJECT_ROOT + config.DATA_PATH + "train" + "test1.npy"
     data = np.load(path, allow_pickle=True).item()
     plt.figure()

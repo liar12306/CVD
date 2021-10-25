@@ -76,7 +76,10 @@ def process_ROI(face, landmarks):
         cv2.fillPoly(mask, np.array([landmarks[ROI[key]]], dtype=np.int32), (255, 255, 255))
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
         # 统计roi像素个数
-        roi_pix_nums.append(np.bincount(mask.flatten())[255])
+        try:
+            roi_pix_nums.append(np.bincount(mask.flatten())[255])
+        except:
+            pass
 
 
         roi = np.zeros((h, w, 6))

@@ -18,4 +18,5 @@ def map_generation():
 
 
 if __name__ == "__main__":
-    map_generation()
+     map_generation()
+
