@@ -9,7 +9,7 @@ def map_generation():
 
             # 读取视频的列表文件
             path = line.strip("\n")
-            prefix = path.replace("/" , "_")
+            prefix = path.replace("/", "_")
             video_dir = config.video_path+path
             time_file_path = video_dir + "time.txt"
             if not os.path.exists(time_file_path):
