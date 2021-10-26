@@ -57,7 +57,7 @@ def get_frames_and_video_meta_data(video_path, meta_data_only=False):
     # Frames from the video have shape NumFrames x H x W x C
     frames = get_frames(cap, H, W)
 
-    return frames
+    return frames, frameRate
 
 if __name__ == "__main__":
     video_path = config.PROJECT_ROOT+config.DATA_PATH+"video.avi"

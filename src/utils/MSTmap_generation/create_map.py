@@ -58,7 +58,7 @@ def create_map(video_dir, prefix):
     video_path = video_dir + "video.avi"
 
     # 获取视频帧
-    frames = get_frames_and_video_meta_data(video_path)
+    frames,fps = get_frames_and_video_meta_data(video_path)
     st_map = np.zeros((len(frames), config.ROI_COMBINATION_NUM, config.MAP_CHANEL_NUM))
 
     for idx, frame in enumerate(frames):
@@ -75,29 +75,21 @@ def create_map(video_dir, prefix):
             maxx = tmp_channel_data.max()
             st_map[idx, :, c] = (tmp_channel_data - minn) / (maxx - minn) * 255
 
-    save_maps(st_map, video_dir, prefix)
+    save_maps(st_map, video_dir, prefix,fps)
 
 
-def save_maps(st_map, video_dir, prefix):
+def save_maps(st_map, video_dir, prefix,fps):
     gt_hr_file_path = video_dir + "gt_HR.csv"
-    time_file_path = video_dir + "time.txt"
     BVP_file_path = video_dir + "wave.csv"
     clip_length = config.CLIP_LENGTH
 
-    # 时间文件数据读取
-    time_data = []
-    with open(time_file_path, "r") as file:
-        for line in file.readlines():
-            time_data.append(int(line.strip('\n')))
-    time_data = np.array(time_data)
+
     # 读取心率数据
     gt_data = pd.read_csv(gt_hr_file_path)["HR"].to_numpy()
 
     # 读取BVP数据
     bvp_data = pd.read_csv(BVP_file_path)["Wave"].to_numpy()
 
-    # fps计算
-    fps = len(time_data) / (time_data[-1] - time_data[0]) * 1000
 
     frame_num = st_map.shape[1]
     # 每0.5s提取一次300帧长度
@@ -147,7 +139,7 @@ def save_maps(st_map, video_dir, prefix):
         if os.path.exists(save_path):
             os.remove(save_path)
         else:
-            print(save_path)
+
             with open((config.PROJECT_ROOT + config.train_data_paths), 'a+') as f:
                 f.write(save_path + "\n")
 
