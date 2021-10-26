@@ -3,13 +3,24 @@ sys.path.append("../..")
 from tqdm import tqdm
 from MSTmap_generation.create_map import *
 def map_generation():
+    processed = set()
+    with open(config.PROJECT_ROOT+config.train_data_paths,"r") as f:
+        for line in f.readlines():
+            video = line.split("/")[-1].split(".")[0].split("_")[0:-1]
+            prefix = ""
+            for item in video:
+                prefix+=(item+"_")
+            processed.add(prefix)
     with open(config.video_data_list_file) as f:
+
 
         for line in tqdm(f.readlines()):
 
             # 读取视频的列表文件
             path = line.strip("\n")
             prefix = path.replace("/" , "_")
+            if prefix in processed:
+                continue
             video_dir = config.video_path+path
             time_file_path = video_dir + "time.txt"
             if not os.path.exists(time_file_path):
