@@ -22,9 +22,6 @@ def map_generation():
             if prefix in processed:
                 continue
             video_dir = config.video_path+path
-            time_file_path = video_dir + "time.txt"
-            if not os.path.exists(time_file_path):
-                continue
             print(prefix)
             create_map(video_dir, prefix)
 
