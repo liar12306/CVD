@@ -31,6 +31,10 @@ class PixelMap_fold_STmap(Dataset):
         with open(train_file, 'r') as f:
             for line in f.readlines():
                 self.data_list.append(line.strip('\n'))
+        if Training:
+            self.data_list = self.data_list[0:int(len(self.data_list)*0.8)]
+        else:
+            self.data_list = self.data_list[int(len(self.data_list) * 0.8):-1]
 
     def __len__(self):
 
@@ -46,8 +50,8 @@ class PixelMap_fold_STmap(Dataset):
 
         if self.VerticalFlip:
             if random.random() < 0.5:
-                feature_map1 = transF.vflip(feature_map1);
-                feature_map2 = transF.vflip(feature_map2);
+                feature_map1 = transF.vflip(feature_map1)
+                feature_map2 = transF.vflip(feature_map2)
 
         if self.transform:
             feature_map1 = self.transform(feature_map1)

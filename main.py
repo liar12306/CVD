@@ -8,7 +8,7 @@ from src import config
 # You need to adjust the training and test dataloader based on your data
 # CopyRight @ Xuesong Niu
 ########################################################
-
+sys.path.append('..')
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -22,8 +22,8 @@ from torchvision import transforms, utils
 import scipy.io as sio
 import torchvision.models as models
 from torch.optim.lr_scheduler import MultiStepLR
+import numpy as np
 
-sys.path.append('..')
 
 from src.database.Pixelmap import PixelMap_fold_STmap
 
@@ -87,6 +87,30 @@ lossfunc_SNR = SNR_loss(clip_length=video_length, loss_type=7)
 optimizer = torch.optim.Adam([{'params': net.parameters(), 'lr': 0.0005}])
 
 
+def hr_error(ground_true, predict):
+    return abs(predict - ground_true)
+
+
+def rmse(loss):
+    return np.sqrt(np.mean(loss ** 2))
+
+
+def mae(loss):
+    return np.mean(loss)
+
+
+def mer(ground_true, loss):
+    return np.mean(loss / ground_true) * 100
+
+
+def std(loss, hr_mae):
+    return np.sqrt(np.mean((loss - hr_mae) ** 2))
+
+def r(ground_true,predict):
+    g = ground_true - np.mean(ground_true)
+    p = predict-np.mean(predict)
+    return np.sum(g*p)/(np.sqrt(np.sum(g**2))*np.sqrt(np.sum(p**2)))
+
 def train(epoch):
     net.train()
     train_loss = 0
@@ -100,7 +124,7 @@ def train(epoch):
         fps = fps.cuda()
         bvp = bvp.cuda()
 
-        print(bvp)
+
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
@@ -109,7 +133,7 @@ def train(epoch):
         loss_img = lossfunc_img(data, img_out) * lambda_img
         loss_ecg = lossfunc_ecg(ecg, bvp) * lambda_ecg
 
-        print(loss_ecg)
+
         loss_SNR, tmp = lossfunc_SNR(ecg, bpm, fps, pred=output, flag=None) * lambda_snr
         loss = loss_hr + loss_ecg + loss_img + loss_SNR
 

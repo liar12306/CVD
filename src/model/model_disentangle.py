@@ -6,9 +6,9 @@ import shutil
 import numpy as np
 import scipy.io as sio
 
-sys.path.append('..');
+sys.path.append('..')
 
-from src.model.resnet import resnet18, resnet18_part;
+from src.model.resnet import resnet18, resnet18_part
 import time
 
 class ResidualBlock(nn.Module):
@@ -29,7 +29,7 @@ class Generator(nn.Module):
     def __init__(self, conv_dim=64, repeat_num=2, img_mode = 3, up_time = 3):
         super(Generator, self).__init__()
 
-        curr_dim = conv_dim;
+        curr_dim = conv_dim
 
         # Bottleneck
         layers = []
@@ -60,7 +60,7 @@ class Generator(nn.Module):
 
     def forward(self, x):
         features = self.main(x)
-        x = self.img_reg(features);
+        x = self.img_reg(features)
 
         return x
 
@@ -68,11 +68,11 @@ class HR_estimator_multi_task_STmap(nn.Module):
     def __init__(self, video_length = 300):
         super(HR_estimator_multi_task_STmap, self).__init__()
 
-        self.extractor = resnet18(pretrained=False, num_classes=1, num_output=34);
+        self.extractor = resnet18(pretrained=False, num_classes=1, num_output=34)
         self.extractor.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.extractor.conv1 = nn.Conv2d(6, 64, kernel_size=7, stride=2, padding=3, bias=False)
 
-        self.feature_pool = nn.AdaptiveAvgPool2d((1, 10));
+        self.feature_pool = nn.AdaptiveAvgPool2d((1, 10))
         self.upsample1 = nn.Sequential(
             nn.ConvTranspose2d(in_channels=256, out_channels=64, kernel_size=[1, 3], stride=[1, 3],
                                padding=[0, 0]),  # [1, 128, 32]
@@ -86,43 +86,43 @@ class HR_estimator_multi_task_STmap(nn.Module):
             nn.ELU(),
         )
 
-        self.video_length = video_length;
+        self.video_length = video_length
         self.poolspa = nn.AdaptiveAvgPool2d((1, int(self.video_length)))
         self.ecg_conv = nn.Conv2d(32, 1, kernel_size=1, stride=1, padding=0)
 
     def forward(self, x):
 
-        hr, feat_out, feat = self.extractor(x);
+        hr, feat_out, feat = self.extractor(x)
 
-        x = self.feature_pool(feat);
-        x = self.upsample1(x);
-        x = self.upsample2(x);
-        x = self.poolspa(x);
+        x = self.feature_pool(feat)
+        x = self.upsample1(x)
+        x = self.upsample2(x)
+        x = self.poolspa(x)
         x = self.ecg_conv(x)
 
-        ecg = x.view(-1, int(self.video_length));
+        ecg = x.view(-1, int(self.video_length))
 
-        return hr, ecg, feat_out;
+        return hr, ecg, feat_out
 
 class HR_disentangle(nn.Module):
     def __init__(self, video_length = 300, decov_num = 1):
         super(HR_disentangle, self).__init__()
 
-        self.extractor = HR_estimator_multi_task_STmap();
+        self.extractor = HR_estimator_multi_task_STmap()
         self.Noise_encoder = resnet18_part()
         self.Noise_encoder.conv1 = nn.Conv2d(6, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.decoder = Generator(conv_dim=128, repeat_num=decov_num, img_mode = 3)
 
-        self.video_length = video_length;
+        self.video_length = video_length
         self.poolspa = nn.AdaptiveAvgPool2d((1, int(self.video_length/2)))
         self.ecg_conv = nn.Conv2d(32, 1, kernel_size=1, stride=1, padding=0)
 
     def forward(self, img):
 
-        hr, ecg, feat_hr = self.extractor(img);
-        feat_n = self.Noise_encoder(img);
-        feat = feat_hr + feat_n;
-        img = self.decoder(feat);
+        hr, ecg, feat_hr = self.extractor(img)
+        feat_n = self.Noise_encoder(img)
+        feat = feat_hr + feat_n
+        img = self.decoder(feat)
 
         return feat_hr, feat_n, hr, img, ecg
 
@@ -130,36 +130,36 @@ class HR_disentangle_cross(nn.Module):
     def __init__(self, video_length = 300):
         super(HR_disentangle_cross, self).__init__()
 
-        self.encoder_decoder = HR_disentangle(decov_num = 1);
+        self.encoder_decoder = HR_disentangle(decov_num = 1)
 
-        self.video_length = video_length;
+        self.video_length = video_length
         self.poolspa = nn.AdaptiveAvgPool2d((1, int(self.video_length)))
         self.ecg_conv = nn.Conv2d(32, 1, kernel_size=1, stride=1, padding=0)
 
     def forward(self, img):
 
-        batch_size = img.size(0);
+        batch_size = img.size(0)
 
-        feat_hr, feat_n, hr, img_out, ecg = self.encoder_decoder(img);
+        feat_hr, feat_n, hr, img_out, ecg = self.encoder_decoder(img)
 
         idx1 = torch.randint(batch_size, (batch_size,))
         idx2 = torch.randint(batch_size, (batch_size,))
 
-        idx1 = idx1.long();
-        idx2 = idx2.long();
+        idx1 = idx1.long()
+        idx2 = idx2.long()
 
-        feat_hr1 = feat_hr[idx1, :, :, :];
-        feat_hr2 = feat_hr[idx2, :, :, :];
-        feat_n1 = feat_n[idx1, :, :, :];
-        feat_n2 = feat_n[idx2, :, :, :];
+        feat_hr1 = feat_hr[idx1, :, :, :]
+        feat_hr2 = feat_hr[idx2, :, :, :]
+        feat_n1 = feat_n[idx1, :, :, :]
+        feat_n2 = feat_n[idx2, :, :, :]
 
-        featf1 = feat_hr1 + feat_n2;
-        featf2 = feat_hr2 + feat_n1;
+        featf1 = feat_hr1 + feat_n2
+        featf2 = feat_hr2 + feat_n1
 
-        imgf1 = self.encoder_decoder.decoder(featf1);
-        imgf2 = self.encoder_decoder.decoder(featf2);
+        imgf1 = self.encoder_decoder.decoder(featf1)
+        imgf2 = self.encoder_decoder.decoder(featf2)
 
-        feat_hrf1, feat_nf2, hrf1, img_outf1, ecg1 = self.encoder_decoder(imgf1);
-        feat_hrf2, feat_nf1, hrf2, img_outf2, ecg2 = self.encoder_decoder(imgf2);
+        feat_hrf1, feat_nf2, hrf1, img_outf1, ecg1 = self.encoder_decoder(imgf1)
+        feat_hrf2, feat_nf1, hrf2, img_outf2, ecg2 = self.encoder_decoder(imgf2)
 
         return feat_hr, feat_n, hr, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2

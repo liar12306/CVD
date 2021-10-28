@@ -1,3 +1,5 @@
+from numpy.linalg import linalg
+
 from src.utils.seetaface import api
 from src import config
 import cv2
@@ -15,7 +17,7 @@ def get_landmarks(seetaFace, frame, face):
 
 
 def get_faces_landmarks(frame):
-    frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     seetaFace = api.SeetaFace(api.FACE_DETECT | api.LANDMARKER68)
     faces = []
     detect_result = detect_faces(seetaFace, frame)
@@ -56,7 +58,6 @@ def get_faces_landmarks(frame):
 
 def process_ROI(face, landmarks):
     h, w, c = face.shape
-    roi_signal = np.zeros((5, 6))
 
     ROI = {
         "left1": [0, 1, 2, 31, 41, 0],
@@ -64,33 +65,41 @@ def process_ROI(face, landmarks):
         "right1": [16, 15, 14, 35, 46, 16],
         "right2": [14, 13, 12, 11, 54, 35, 14],
         "mouth": [5, 6, 7, 8, 9, 10, 11, 54, 56, 57, 58, 48, 5],
-        # "forehead":[17,18,19,20,21,22,23,24,25,26]
+        "no": [31, 27, 35, 30, 31]
     }
+
+    # ROI["forehead"].append(forehead[0])
 
     rois = []
     roi_pix_nums = []
     for key in ROI:
         mask = np.zeros(face.shape, dtype="uint8")
-
         # 掩膜
+
         cv2.fillPoly(mask, np.array([landmarks[ROI[key]]], dtype=np.int32), (255, 255, 255))
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        # 统计roi像素个数
-        roi_pix_nums.append(np.bincount(mask.flatten())[255])
 
+
+        # 统计roi像素个数
+        roi_pix_nums.append((np.bincount(mask.flatten())[255]))
 
 
         roi = np.zeros((h, w, 6))
         roi[:, :, 0:3] = cv2.bitwise_and(face, face, mask=mask)
 
-        face = cv2.cvtColor(face, cv2.COLOR_RGB2YUV)
-        roi[:, :, 3:6] = cv2.bitwise_and(face, face, mask=mask)
+        yuvface = cv2.cvtColor(face, cv2.COLOR_RGB2YUV)
+        roi[:, :, 3:6] = cv2.bitwise_and(yuvface, yuvface, mask=mask)
         rois.append(roi)
+
     return rois, np.array(roi_pix_nums)
 
 
 if __name__ == "__main__":
-    path = config.PROJECT_ROOT + config.DATA_PATH + "img.png"
-    img = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
+    path = config.PROJECT_ROOT + "/data/img.jpg"
+    print(path)
+    img = cv2.imread(path)
+
     landmarks, face = get_faces_landmarks(img)
+
+
     rois = process_ROI(face, landmarks)

@@ -8,10 +8,9 @@ import shutil
 import numpy as np
 import scipy.io as sio
 
-sys.path.append('..');
 
-# from utils.model.resnet import resnet18, resnet_small;
-# from utils.model.resnet_stconv import resnet18_stconv;
+# from utils.model.resnet import resnet18, resnet_small
+# from utils.model.resnet_stconv import resnet18_stconv
 import time
 
 

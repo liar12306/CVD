@@ -58,18 +58,24 @@ def create_map(video_dir, prefix):
     video_path = video_dir + "video.avi"
 
     # 获取视频帧
-    frames,fps = get_frames_and_video_meta_data(video_path)
+    frames, fps = get_frames_and_video_meta_data(video_path)
     st_map = np.zeros((len(frames), config.ROI_COMBINATION_NUM, config.MAP_CHANEL_NUM))
-
-    for idx, frame in enumerate(frames):
+    faces = []
+    flandmarks = []
+    for frame in frames:
         landmarks, face = get_faces_landmarks(frame)
+        faces.append(face)
+        flandmarks.append(landmarks)
+
+
+    for idx, face in enumerate(faces):
+        landmarks = flandmarks[idx]
         try:
             rois, roi_pix_nums = process_ROI(face, landmarks)
         except:
-            with open(config.PROJECT_ROOT+config.DATA_PATH+"fail.txt","a+") as f:
-                f.write(prefix+"\n")
+            with open(config.PROJECT_ROOT + config.DATA_PATH + "fail.txt", "a+") as f:
+                f.write(prefix + "\n")
             return
-
         st_map[idx, :, :] = get_signal_map(rois, config.ROI_NUM, roi_pix_nums)
 
     st_map = np.swapaxes(st_map, 0, 1)
@@ -81,7 +87,7 @@ def create_map(video_dir, prefix):
             maxx = tmp_channel_data.max()
             st_map[idx, :, c] = (tmp_channel_data - minn) / (maxx - minn) * 255
 
-    save_maps(st_map, video_dir, prefix,fps)
+    save_maps(st_map, video_dir, prefix, fps)
 
 
 def save_maps(st_map, video_dir, prefix,fps):
@@ -153,10 +159,6 @@ def save_maps(st_map, video_dir, prefix,fps):
 
 
 if __name__ == "__main__":
-    pass
-    path = config.PROJECT_ROOT + config.DATA_PATH + "train" + "test1.npy"
-    data = np.load(path, allow_pickle=True).item()
-    plt.figure()
-    plt.imshow(data["yuv_map"])
-    plt.show()
-    print(data.keys())
+    video_dir = config.video_path+"p80/v8/source2/"
+
+    create_map(video_dir, "p80/v8/source2/")

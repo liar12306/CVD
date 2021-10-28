@@ -151,7 +151,7 @@ class ResNet(nn.Module):
         if self.num_output == 34:
             return x, conv3, conv4
         else:
-            return x;
+            return x
 
 class ResNet_layer4(nn.Module):
 
@@ -409,7 +409,7 @@ def resnet34_part(pretrained=False, **kwargs):
     if pretrained:
         ckp_path = '../model/pretrain/step_390000.model'
         checkpoint = torch.load(ckp_path)
-        pretrained_dict = checkpoint['net_state_dict'];
+        pretrained_dict = checkpoint['net_state_dict']
 
         model_dict = model.state_dict()
 
@@ -480,7 +480,7 @@ def resnet34_part_cov3(pretrained=False, **kwargs):
     if pretrained:
         ckp_path = '../model/pretrain/step_390000.model'
         checkpoint = torch.load(ckp_path)
-        pretrained_dict = checkpoint['net_state_dict'];
+        pretrained_dict = checkpoint['net_state_dict']
 
         model_dict = model.state_dict()
 
