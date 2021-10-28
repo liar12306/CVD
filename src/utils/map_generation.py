@@ -31,7 +31,5 @@ def map_generation():
 
 
 if __name__ == "__main__":
-     #map_generation()
-    data = np.load(config.PROJECT_ROOT+"/data/train/p1_v1_source1_0.npy",allow_pickle=True).item()
-    plt.imshow(data["rgb_map"])
-    plt.show()
+    map_generation()
+
