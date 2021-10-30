@@ -1,5 +1,5 @@
 # This is a sample Python script.
-from datetime import time
+import time
 import sys
 sys.path.append('..')
 from src import config
