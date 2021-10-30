@@ -145,8 +145,8 @@ def train(epoch):
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
-        gt_hr = gt_hr+bpm.flatten().numpy().tolist()
-        predict_hr = predict_hr+output.flatten().numpy().tolist()
+        gt_hr = gt_hr+bpm.cpu().flatten().numpy().tolist()
+        predict_hr = predict_hr+output.cpu().flatten().numpy().tolist()
 
         loss_hr = lossfunc_HR(output, bpm) * lambda_hr
         loss_img = lossfunc_img(data, img_out) * lambda_img
@@ -198,8 +198,8 @@ def test():
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
-        gt_hr = gt_hr + hr.flatten().numpy().tolist()
-        predict_hr = predict_hr + output.flatten().numpy().tolist()
+        gt_hr = gt_hr + hr.cpu().flatten().numpy().tolist()
+        predict_hr = predict_hr + output.cpu().flatten().numpy().tolist()
         loss = lossfunc_HR(output, hr)
 
         test_loss += loss.item()
