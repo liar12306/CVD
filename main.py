@@ -86,7 +86,7 @@ lossfunc_img = nn.L1Loss()
 lossfunc_cross = Cross_loss(lambda_cross_fhr=lambda_cross_fhr, lambda_cross_fn=lambda_cross_fn,
                              lambda_cross_hr=lambda_cross_hr)
 lossfunc_ecg = Neg_Pearson(downsample_mode=0)
-lossfunc_SNR = SNR_loss(clip_length=video_length, loss_type=7)
+#lossfunc_SNR = SNR_loss(clip_length=video_length, loss_type=7)
 
 optimizer = torch.optim.Adam([{'params': net.parameters(), 'lr': 0.0005}])
 
@@ -227,6 +227,7 @@ def run():
 
 if __name__ == "__main__":
     run()
+
 
 
 
