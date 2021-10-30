@@ -174,7 +174,7 @@ def train(epoch):
     m = cost_time // 60
     s = cost_time %60
     metrics = compute_criteria(np.array(gt_hr),np.array(predict_hr))
-    print(f"\nFinished [Epoch: {epoch + 1}/{config.EPOCHS}]",
+    print(f"\nFinished [Epoch: {epoch + 1}/{epoch_num}]",
           "\nTraining Loss: {:.3f} |".format(train_loss/train_loss),
           "MAE : {:.3f} |".format(metrics["MAE"]),
           "RMSE : {:.3f} |".format(metrics["RMSE"]),
