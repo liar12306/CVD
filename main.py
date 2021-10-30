@@ -1,4 +1,7 @@
 # This is a sample Python script.
+from datetime import time
+import sys
+sys.path.append('..')
 from src import config
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
@@ -8,7 +11,7 @@ from src import config
 # You need to adjust the training and test dataloader based on your data
 # CopyRight @ Xuesong Niu
 ########################################################
-sys.path.append('..')
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -74,7 +77,8 @@ test_loader = DataLoader(test_dataset, batch_size=test_batch_size,
 #########################################################################
 #########################################################################
 net = HR_disentangle_cross()
-net.cuda()
+if torch.cuda.is_available():
+    net.cuda()
 #########################################################################
 
 lossfunc_HR = nn.L1Loss()
@@ -111,23 +115,38 @@ def r(ground_true,predict):
     p = predict-np.mean(predict)
     return np.sum(g*p)/(np.sqrt(np.sum(g**2))*np.sqrt(np.sum(p**2)))
 
+def compute_criteria(target_hr_list, predicted_hr_list):
+    hr_loss = hr_error(target_hr_list, predicted_hr_list)
+    hr_mae = mae(hr_loss)
+    hr_rmse = rmse(hr_loss)
+    hr_mer = mer(target_hr_list, hr_loss)
+    hr_std = std(hr_loss, hr_mae)
+    pearson = r(target_hr_list, predicted_hr_list)
+
 def train(epoch):
     net.train()
     train_loss = 0
-
+    count = 0
+    start_time = time.time()
+    gt_hr = []
+    predict_hr = []
     for batch_idx, (data, bpm, fps, bvp, idx) in enumerate(train_loader):
+        count+=1
         data = Variable(data)
         bvp = Variable(bvp)
         bpm = Variable(bpm.view(-1, 1))
         fps = Variable(fps.view(-1, 1))
-        data, bpm = data.cuda(), bpm.cuda()
-        fps = fps.cuda()
-        bvp = bvp.cuda()
+        if torch.cuda.is_available():
+            data, bpm = data.cuda(), bpm.cuda()
+            fps = fps.cuda()
+            bvp = bvp.cuda()
 
 
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
+        gt_hr = gt_hr+bpm.flatten().numpy().tolist()
+        predict_hr = predict_hr+output.flatten().numpy().tolist()
 
         loss_hr = lossfunc_HR(output, bpm) * lambda_hr
         loss_img = lossfunc_img(data, img_out) * lambda_img
@@ -150,27 +169,47 @@ def train(epoch):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+    end_tiem = time.time()
+    cost_time = int(end_tiem-start_time)
+    m = cost_time // 60
+    s = cost_time %60
+    metrics = compute_criteria(np.array(gt_hr),np.array(predict_hr))
+    print(f"\nFinished [Epoch: {epoch + 1}/{config.EPOCHS}]",
+          "\nTraining Loss: {:.3f} |".format(train_loss/train_loss),
+          "MAE : {:.3f} |".format(metrics["MAE"]),
+          "RMSE : {:.3f} |".format(metrics["RMSE"]),
+          "STD : {:.3f} |".format(metrics["STD"]),
+          "MER : {:.3f}% |".format(metrics["MER"]),
+          "r : {:.3f} |".format(metrics["r"]),
+          "time: {}:{} s".format(m, s))
 
-        print(
-            'Train epoch: {:.0f}, it: {:.0f}, loss: {:.4f}, loss_hr: {:.4f}, loss_img: {:.4f}, loss_cross: {:.4f}, loss_snr: {:.4f}'.format(
-                epoch, batch_idx,
-                loss, loss_hr, loss_img, loss_cross, loss_SNR))
 
 
 def test():
     net.eval()
     test_loss = 0
-
+    gt_hr = []
+    predict_hr = []
     for (data, hr, fps, bvp, idx) in test_loader:
         data = Variable(data)
         hr = Variable(hr.view(-1, 1))
-        data, hr = data.cuda(), hr.cuda()
+        if torch.cuda.is_available():
+            data, hr = data.cuda(), hr.cuda()
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
+        gt_hr = gt_hr + hr.flatten().numpy().tolist()
+        predict_hr = predict_hr + output.flatten().numpy().tolist()
         loss = lossfunc_HR(output, hr)
 
         test_loss += loss.item()
+    metrics = compute_criteria(np.array(gt_hr), np.array(predict_hr))
+    print("\nTest MAE : {:.3f} |".format(metrics["MAE"]),
+          "RMSE : {:.3f} |".format(metrics["RMSE"]),
+          "STD : {:.3f} |".format(metrics["STD"]),
+          "MER : {:.3f}% |".format(metrics["MER"]),
+          "r : {:.3f} |".format(metrics["r"])
+          )
 
 def run():
     begin_epoch = 1

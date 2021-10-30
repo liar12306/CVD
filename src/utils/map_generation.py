@@ -24,7 +24,7 @@ def map_generation():
             if prefix in processed:
                 continue
             video_dir = config.video_path+path
-
+            print(video_dir)
             create_map(video_dir, prefix)
 
 
@@ -32,4 +32,5 @@ def map_generation():
 
 if __name__ == "__main__":
     map_generation()
+
 

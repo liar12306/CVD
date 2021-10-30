@@ -56,20 +56,20 @@ def get_signal_map(rois, roi_num, roi_pix_nums):
 
 def create_map(video_dir, prefix):
     video_path = video_dir + "video.avi"
+    if not os.path.exists(video_path):
+        return
 
     # 获取视频帧
     frames, fps = get_frames_and_video_meta_data(video_path)
     st_map = np.zeros((len(frames), config.ROI_COMBINATION_NUM, config.MAP_CHANEL_NUM))
     faces = []
     flandmarks = []
-    for frame in frames:
+
+
+
+    for idx, frame in enumerate(frames):
+
         landmarks, face = get_faces_landmarks(frame)
-        faces.append(face)
-        flandmarks.append(landmarks)
-
-
-    for idx, face in enumerate(faces):
-        landmarks = flandmarks[idx]
         try:
             rois, roi_pix_nums = process_ROI(face, landmarks)
         except:
@@ -125,8 +125,9 @@ def save_maps(st_map, video_dir, prefix,fps):
         map_clip = st_map[:, start_idx:end_idx, :].astype(np.uint8)
 
         # 每分钟心跳次数
-        bpm = gt_tmp / clip_num / fps / 60
 
+        # bpm = (gt_tmp/60) * (clip_length / fps)
+        bpm = gt_tmp
         #
         bvp_begin = int(start_idx / frame_num * len(bvp_data))
         bvp_len = math.ceil(clip_length / frame_num * len(bvp_data))
@@ -139,6 +140,7 @@ def save_maps(st_map, video_dir, prefix,fps):
         xx = xx * bvp_len / clip_length
 
         bvp = np.interp(xx, x, bvp)
+
         train_data = {
             "rgb_map": map_clip[:, :, 0:3],
             "yuv_map": map_clip[:, :, 3:6],
@@ -159,6 +161,10 @@ def save_maps(st_map, video_dir, prefix,fps):
 
 
 if __name__ == "__main__":
-    video_dir = config.video_path+"p80/v8/source2/"
+    start_time = time.time()
+    video_dir = config.video_path+"p1/v1/source1/"
 
-    create_map(video_dir, "p80/v8/source2/")
+    create_map(video_dir, "p1_v1_source1_")
+    end_time = time.time()
+    cost = int(end_time-start_time)
+    print("\n{} m : {} s".format(int(cost/60), cost%60))

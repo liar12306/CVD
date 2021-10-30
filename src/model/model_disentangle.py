@@ -69,7 +69,7 @@ class HR_estimator_multi_task_STmap(nn.Module):
         super(HR_estimator_multi_task_STmap, self).__init__()
 
         self.extractor = resnet18(pretrained=False, num_classes=1, num_output=34)
-        self.extractor.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.extractor.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.extractor.conv1 = nn.Conv2d(6, 64, kernel_size=7, stride=2, padding=3, bias=False)
 
         self.feature_pool = nn.AdaptiveAvgPool2d((1, 10))
