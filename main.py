@@ -222,7 +222,7 @@ def run():
             train_loader = DataLoader(train_dataset, batch_size=batch_size_num,
                                       shuffle=True, num_workers=4)
 
-        train()
+        train(epoch)
         test()
 
 if __name__ == "__main__":
