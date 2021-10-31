@@ -122,6 +122,7 @@ def compute_criteria(target_hr_list, predicted_hr_list):
     hr_mer = mer(target_hr_list, hr_loss)
     hr_std = std(hr_loss, hr_mae)
     pearson = r(target_hr_list, predicted_hr_list)
+    return {"MAE":hr_mae,"RMSE":hr_rmse,"MER":hr_mer,"STD":hr_std,"r":pearson}
 
 def train(epoch):
     net.train()
