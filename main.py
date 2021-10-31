@@ -145,8 +145,10 @@ def train(epoch):
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
-        gt_hr = gt_hr+bpm.cpu().flatten().detach().numpy().tolist()
-        predict_hr = predict_hr+output.cpu().flatten().detach().numpy().tolist()
+        gt_hr.append(bpm[0].item())
+        gt_hr.append(bpm[1].item())
+        predict_hr.append(output[0].item())
+        predict_hr.append(output[1].item())
 
         loss_hr = lossfunc_HR(output, bpm) * lambda_hr
         loss_img = lossfunc_img(data, img_out) * lambda_img
@@ -173,15 +175,21 @@ def train(epoch):
     cost_time = int(end_tiem-start_time)
     m = cost_time // 60
     s = cost_time %60
-    metrics = compute_criteria(np.array(gt_hr),np.array(predict_hr))
-    print(f"\nFinished [Epoch: {epoch + 1}/{epoch_num}]",
-          "\nTraining Loss: {:.3f} |".format(train_loss/train_loss),
-          "MAE : {:.3f} |".format(metrics["MAE"]),
-          "RMSE : {:.3f} |".format(metrics["RMSE"]),
-          "STD : {:.3f} |".format(metrics["STD"]),
-          "MER : {:.3f}% |".format(metrics["MER"]),
-          "r : {:.3f} |".format(metrics["r"]),
-          "time: {}:{} s".format(m, s))
+
+    metrics = compute_criteria(np.array(gt_hr), np.array(predict_hr))
+    try:
+        print(f"\nFinished [Epoch: {epoch + 1}/{epoch_num}]",
+              "\nTraining Loss: {:.3f} |".format(train_loss/train_loss),
+              "MAE : {:.3f} |".format(metrics["MAE"]),
+              "RMSE : {:.3f} |".format(metrics["RMSE"]),
+              "STD : {:.3f} |".format(metrics["STD"]),
+              "MER : {:.3f}% |".format(metrics["MER"]),
+              "r : {:.3f} |".format(metrics["r"]),
+              "time: {}:{} s".format(m, s))
+    except:
+        print(f"\nFinished [Epoch: {epoch + 1}/{epoch_num}]",
+              "\nTraining Loss: {:.3f} |".format(train_loss / train_loss),
+              "MAE : {:.3f} |".format(metrics["MAE"]),)
 
 
 
@@ -198,18 +206,23 @@ def test():
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
-        gt_hr = gt_hr + hr.cpu().flatten().detach().numpy().tolist()
-        predict_hr = predict_hr + output.cpu().flatten().detach().numpy().tolist()
+        gt_hr.append(hr[0].item())
+        gt_hr.append(hr[1].item())
+        predict_hr.append(output[0].item())
+        predict_hr.append(output[1].item())
         loss = lossfunc_HR(output, hr)
 
         test_loss += loss.item()
     metrics = compute_criteria(np.array(gt_hr), np.array(predict_hr))
-    print("\nTest MAE : {:.3f} |".format(metrics["MAE"]),
-          "RMSE : {:.3f} |".format(metrics["RMSE"]),
-          "STD : {:.3f} |".format(metrics["STD"]),
-          "MER : {:.3f}% |".format(metrics["MER"]),
-          "r : {:.3f} |".format(metrics["r"])
-          )
+    try:
+        print("\nTest MAE : {:.3f} |".format(metrics["MAE"]),
+              "RMSE : {:.3f} |".format(metrics["RMSE"]),
+              "STD : {:.3f} |".format(metrics["STD"]),
+              "MER : {:.3f}% |".format(metrics["MER"]),
+              "r : {:.3f} |".format(metrics["r"])
+              )
+    except:
+        print("\nTest MAE : {:.3f} |".format(metrics["MAE"]))
 
 def run():
     begin_epoch = 1
@@ -227,7 +240,15 @@ def run():
 
 if __name__ == "__main__":
     run()
-
+    # it = iter(train_loader)
+    # data, bpm, fps, bvp, idx = next(it)
+    # bpm = Variable(bpm)
+    # print(type(bpm))
+    # gt_hr = []
+    # gt_hr.append(bpm[0].item())
+    # print(gt_hr)
+    # gt_hr.append(bpm.item())
+    # print(gt_hr)
 
 
 
