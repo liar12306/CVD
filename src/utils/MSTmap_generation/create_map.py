@@ -1,5 +1,5 @@
 import os.path
-
+import scipy.io as scio
 import matplotlib.pyplot as plt
 import numpy as np
 from src.utils.MSTmap_generation.process_ROI import *
@@ -12,10 +12,10 @@ import time
 all_idx = []
 
 
-def get_roi_signal(roi):
+def get_roi_signal(roi, mask_num):
     signal = np.zeros(6)
     for i in range(6):
-        signal[i] = np.mean(roi[:, :, i])
+        signal[i] = (roi[:, :, i].sum())/mask_num
     return signal
 
 
@@ -38,7 +38,7 @@ def get_signal_map(rois, roi_num, roi_pix_nums):
     roi_signal = np.zeros((roi_num, 6))
 
     for idx in range(roi_num):
-        roi_signal[idx, :] = get_roi_signal(rois[idx])
+        roi_signal[idx, :] = get_roi_signal(rois[idx], roi_pix_nums[idx])
     dfs(0, roi_num, [])
 
     signal_map = np.zeros((config.ROI_COMBINATION_NUM, 6))
@@ -65,17 +65,17 @@ def create_map(video_dir, prefix):
     faces = []
     flandmarks = []
 
-
-
     for idx, frame in enumerate(frames):
 
         landmarks, face = get_faces_landmarks(frame)
-        try:
-            rois, roi_pix_nums = process_ROI(face, landmarks)
-        except:
-            with open(config.PROJECT_ROOT + config.DATA_PATH + "fail.txt", "a+") as f:
-                f.write(prefix + "\n")
-            return
+        # try:
+        rois, roi_pix_nums = process_ROI(face, landmarks)
+        # except:
+        #     if not os.path.exists(config.PROJECT_ROOT+config.DATA_PATH):
+        #         os.mkdir(config.PROJECT_ROOT+config.DATA_PATH)
+        #     with open(config.PROJECT_ROOT + config.DATA_PATH + "fail.txt", "a+") as f:
+        #         f.write(prefix + "\n")
+        #     return
         st_map[idx, :, :] = get_signal_map(rois, config.ROI_NUM, roi_pix_nums)
 
     st_map = np.swapaxes(st_map, 0, 1)
@@ -90,18 +90,16 @@ def create_map(video_dir, prefix):
     save_maps(st_map, video_dir, prefix, fps)
 
 
-def save_maps(st_map, video_dir, prefix,fps):
+def save_maps(st_map, video_dir, prefix, fps):
     gt_hr_file_path = video_dir + "gt_HR.csv"
     BVP_file_path = video_dir + "wave.csv"
     clip_length = config.CLIP_LENGTH
-
 
     # 读取心率数据
     gt_data = pd.read_csv(gt_hr_file_path)["HR"].to_numpy()
 
     # 读取BVP数据
     bvp_data = pd.read_csv(BVP_file_path)["Wave"].to_numpy()
-
 
     frame_num = st_map.shape[1]
     # 每0.5s提取一次300帧长度
@@ -149,22 +147,21 @@ def save_maps(st_map, video_dir, prefix,fps):
             "bvp": bvp,
         }
 
-        save_path = save_dir + "{}{}.npy".format(prefix, idx)
-        if os.path.exists(save_path):
-            os.remove(save_path)
-        else:
-
-            with open((config.PROJECT_ROOT + config.train_data_paths), 'a+') as f:
-                f.write(save_path + "\n")
-
-        np.save(save_path, train_data)
+        save_path = save_dir + "/{}{}".format(prefix, idx)
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
+            scio.savemat(save_path + "/fps.mat", {'fps': train_data['fps']})
+            scio.savemat(save_path + "/bvp.mat", {'bvp': train_data['bvp']})
+            scio.savemat(save_path + "/bpm.mat", {'bpm': train_data['bpm']})
+            cv2.imwrite(save_path + "/rgb_map.png", train_data['rgb_map'])
+            cv2.imwrite(save_path + "/yuv_map.png", train_data['yuv_map'])
 
 
 if __name__ == "__main__":
     start_time = time.time()
-    video_dir = config.video_path+"p1/v1/source1/"
+    video_dir = config.video_path + "p1/v1/source1/"
 
     create_map(video_dir, "p1_v1_source1_")
     end_time = time.time()
-    cost = int(end_time-start_time)
-    print("\n{} m : {} s".format(int(cost/60), cost%60))
+    cost = int(end_time - start_time)
+    print("\n{} m : {} s".format(int(cost / 60), cost % 60))

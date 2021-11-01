@@ -9,5 +9,5 @@ ROI_COMBINATION_NUM = 63
 MAP_CHANEL_NUM = 6
 CLIP_LENGTH = 300
 # tets
-video_data_list_file = video_path + "data_list/stable_data_list.txt"
+video_data_list_file = video_path + "data_list/test.txt"
 train_data_paths = "/data/train.txt"

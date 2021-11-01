@@ -65,18 +65,29 @@ def process_ROI(face, landmarks):
         "right1": [16, 15, 14, 35, 46, 16],
         "right2": [14, 13, 12, 11, 54, 35, 14],
         "mouth": [5, 6, 7, 8, 9, 10, 11, 54, 56, 57, 58, 48, 5],
-        "no": [31, 27, 35, 30, 31]
-    }
 
-    # ROI["forehead"].append(forehead[0])
+    }
+    forehead_lmks_idx = [17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+    forehead = landmarks[forehead_lmks_idx]
+    l = np.mean(landmarks[36:42], axis=0)
+    r = np.mean(landmarks[42:48], axis=0)
+    e_dis = linalg.norm(l-r)
+    tmp = (np.mean(landmarks[17:22], axis=0)+np.mean(landmarks[22:27], axis=0))/2 - (l+r)/2
+    tmpp = e_dis/linalg.norm(tmp)*0.6*tmp
+    ROI["forehead"] = list(forehead)
+    ROI["forehead"].append(np.array(forehead[-1])+tmpp)
+    ROI["forehead"].append(np.array(forehead[-0])+tmpp)
+    ROI["forehead"].append(np.array(forehead[0]))
 
     rois = []
     roi_pix_nums = []
     for key in ROI:
         mask = np.zeros(face.shape, dtype="uint8")
         # 掩膜
-
-        cv2.fillPoly(mask, np.array([landmarks[ROI[key]]], dtype=np.int32), (255, 255, 255))
+        if key == "forehead":
+            cv2.fillPoly(mask, np.array([ROI[key]], dtype=np.int32), (255, 255, 255))
+        else:
+            cv2.fillPoly(mask, np.array([landmarks[ROI[key]]], dtype=np.int32), (255, 255, 255))
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
 
