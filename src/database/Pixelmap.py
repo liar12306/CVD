@@ -58,15 +58,10 @@ class PixelMap_fold_STmap(Dataset):
             feature_map2 = self.transform(feature_map2)
 
         feature_map = torch.cat((feature_map1, feature_map2), dim=0)
+        bpm = torch.tensor(data['bpm'], dtype=torch.float).unsqueeze(0)
 
-        bpm = data['bpm']
-        bpm = bpm.astype('float32')
+        fps = torch.tensor(data['fps'],dtype=torch.float).unsqueeze(0)
 
-        fps = data['fps']
-        fps = fps.astype('float32')
-
-        bvp = data['bvp']
-        bvp = bvp.astype('float32')
-        bvp = bvp[0]
+        bvp = torch.tensor(data['bvp'][0], dtype=torch.float).unsqueeze(0)
 
         return (feature_map, bpm, fps, bvp, idx)
