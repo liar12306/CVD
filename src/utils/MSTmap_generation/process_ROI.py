@@ -34,12 +34,12 @@ def get_faces_landmarks(frame):
     # for landmark in landmarks:
     #     cv2.circle(frame, (landmark[0], landmark[1]), 5, (255, 0, 0), -1)
 
-    face_x = min(face.x, landmarks[:, 0].min())
-    face_y = min(face.y, landmarks[:, 1].min())
-    face_h = max(face.height, landmarks[:, 0].max())
-    face_w = max(face.width, landmarks[:, 1].max())
-    landmarks[:, 0] = landmarks[:, 0] - face_x
-    landmarks[:, 1] = landmarks[:, 1] - face_y
+    # face_x = min(face.x, landmarks[:, 0].min())
+    # face_y = min(face.y, landmarks[:, 1].min())
+    # face_h = max(face.height, landmarks[:, 0].max())
+    # face_w = max(face.width, landmarks[:, 1].max())
+    # landmarks[:, 0] = landmarks[:, 0] - face_x
+    # landmarks[:, 1] = landmarks[:, 1] - face_y
     # cv2.circle(frame, (face_x, face_y), 10, (0, 255, 0), -1)
     # print(landmarks)
     # print(face.x,face.height)
@@ -53,7 +53,7 @@ def get_faces_landmarks(frame):
     # plt.show()
     # landmarks[:,0] = landmarks[:,0]-face.x
     # landmarks[:,1] = landmarks[:,1]-face.y
-    return landmarks, frame[face_y:face_w, face_x:face_h, :]
+    return landmarks
 
 
 def process_ROI(face, landmarks):

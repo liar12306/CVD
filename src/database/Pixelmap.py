@@ -9,10 +9,9 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import scipy.io as sio
 from PIL import Image
-from src import config
 
 import torchvision.transforms.functional as transF
-import random
+import random;
 
 
 # from skimage import io, transform
@@ -20,48 +19,55 @@ import random
 class PixelMap_fold_STmap(Dataset):
     def __init__(self, root_dir, Training=True, transform=None, VerticalFlip=False, video_length=300):
 
-        self.train = Training
-        self.root_dir = root_dir
-        self.transform = transform
-
-        self.video_length = video_length
-        self.VerticalFlip = VerticalFlip
+        self.train = Training;
+        self.root_dir = root_dir;
+        self.transform = transform;
+        self.video_length = video_length;
+        self.VerticalFlip = VerticalFlip;
         self.data_list = []
-        train_file = config.PROJECT_ROOT + config.train_data_paths
-        with open(train_file, 'r') as f:
-            for line in f.readlines():
-                self.data_list.append(line.strip('\n'))
+        for fn in os.listdir(self.root_dir):
+            self.data_list.append(fn)
+        train_test_split = int(len(self.data_list) * 0.8)
         if Training:
-            self.data_list = self.data_list[0:int(len(self.data_list)*0.8)]
+            self.data_list = self.data_list[0: train_test_split]
         else:
-            self.data_list = self.data_list[int(len(self.data_list) * 0.8):-1]
+            self.data_list = self.data_list[train_test_split: -1]
 
     def __len__(self):
-
         return len(self.data_list)
 
     def __getitem__(self, idx):
 
-        data_path = self.data_list[0]
-        data = np.load(data_path, allow_pickle=True).item()
+        img_name1 = self.data_list[idx] + '/img_rgb.png';
+        img_name2 = self.data_list[idx] + '/img_yuv.png';
 
-        feature_map1 = Image.fromarray(data["rgb_map"])
-        feature_map2 = Image.fromarray(data["yuv_map"])
+        img_path1 = self.root_dir + img_name1
+        img_path2 = self.root_dir + img_name2
+        feature_map1 = Image.open(img_path1).convert('RGB')
+        feature_map2 = Image.open(img_path2).convert('RGB')
 
-        if self.VerticalFlip:
-            if random.random() < 0.5:
-                feature_map1 = transF.vflip(feature_map1)
-                feature_map2 = transF.vflip(feature_map2)
+        # if self.VerticalFlip:
+        #     if random.random() < 0.5:
+        #         feature_map1 = transF.vflip(feature_map1);
+        #         feature_map2 = transF.vflip(feature_map2);
 
         if self.transform:
             feature_map1 = self.transform(feature_map1)
             feature_map2 = self.transform(feature_map2)
 
-        feature_map = torch.cat((feature_map1, feature_map2), dim=0)
-        bpm = torch.tensor(data['bpm'], dtype=torch.float).unsqueeze(0)
+        feature_map = torch.cat((feature_map1, feature_map2), dim=0);
 
-        fps = torch.tensor(data['fps'],dtype=torch.float).unsqueeze(0)
+        bpm_path = self.root_dir + self.data_list[idx] + '/bpm.mat';
+        bpm = sio.loadmat(bpm_path)['bpm'];
+        bpm = bpm.astype('float32');
 
-        bvp = torch.tensor(data['bvp'][0], dtype=torch.float).unsqueeze(0)
+        fps_path = self.root_dir + self.data_list[idx] + '/fps.mat';
+        fps = sio.loadmat(fps_path)['fps'];
+        fps = fps.astype('float32');
 
-        return (feature_map, bpm, fps, bvp, idx)
+        bvp_path = self.root_dir + self.data_list[idx] + '/bvp.mat';
+        bvp = sio.loadmat(bvp_path)['bvp'];
+        bvp = bvp.astype('float32');
+        bvp = bvp[0];
+
+        return (feature_map, bpm, fps, bvp, idx);

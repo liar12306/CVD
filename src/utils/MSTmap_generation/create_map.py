@@ -67,9 +67,9 @@ def create_map(video_dir, prefix):
 
     for idx, frame in enumerate(frames):
 
-        landmarks, face = get_faces_landmarks(frame)
+        landmarks= get_faces_landmarks(frame)
         # try:
-        rois, roi_pix_nums = process_ROI(face, landmarks)
+        rois, roi_pix_nums = process_ROI(frame, landmarks)
         # except:
         #     if not os.path.exists(config.PROJECT_ROOT+config.DATA_PATH):
         #         os.mkdir(config.PROJECT_ROOT+config.DATA_PATH)
