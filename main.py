@@ -132,7 +132,7 @@ def train(epoch):
     gt_hr = []
     predict_hr = []
     for batch_idx, (data, bpm, fps, bvp, idx) in enumerate(train_loader):
-        count+=1
+        count += 1
         data = Variable(data)
         bvp = Variable(bvp)
         bpm = Variable(bpm.view(-1, 1))
@@ -178,19 +178,16 @@ def train(epoch):
     s = cost_time %60
 
     metrics = compute_criteria(np.array(gt_hr), np.array(predict_hr))
-    try:
-        print(f"\nFinished [Epoch: {epoch + 1}/{epoch_num}]",
-              "\nTraining Loss: {:.3f} |".format(train_loss/train_loss),
-              "MAE : {:.3f} |".format(metrics["MAE"]),
-              "RMSE : {:.3f} |".format(metrics["RMSE"]),
-              "STD : {:.3f} |".format(metrics["STD"]),
-              "MER : {:.3f}% |".format(metrics["MER"]),
-              "r : {:.3f} |".format(metrics["r"]),
-              "time: {}:{} s".format(m, s))
-    except:
-        print(f"\nFinished [Epoch: {epoch + 1}/{epoch_num}]",
-              "\nTraining Loss: {:.3f} |".format(train_loss / train_loss),
-              "MAE : {:.3f} |".format(metrics["MAE"]),)
+
+    print(f"\nFinished [Epoch: {epoch + 1}/{epoch_num}]",
+            "\nTraining Loss: {:.3f} |".format(train_loss/train_loss),
+            "MAE : {:.3f} |".format(metrics["MAE"]),
+            "RMSE : {:.3f} |".format(metrics["RMSE"]),
+            "STD : {:.3f} |".format(metrics["STD"]),
+            "MER : {:.3f}% |".format(metrics["MER"]),
+            "r : {:.3f} |".format(metrics["r"]),
+            "time: {} m:{} s".format(m, s))
+
 
 
 
@@ -202,6 +199,7 @@ def test():
     for (data, hr, fps, bvp, idx) in test_loader:
         data = Variable(data)
         hr = Variable(hr.view(-1, 1))
+        fps = Variable(fps.view(-1, 1))
         if torch.cuda.is_available():
             data, hr = data.cuda(), hr.cuda()
 
@@ -215,15 +213,14 @@ def test():
 
         test_loss += loss.item()
     metrics = compute_criteria(np.array(gt_hr), np.array(predict_hr))
-    try:
-        print("\nTest MAE : {:.3f} |".format(metrics["MAE"]),
-              "RMSE : {:.3f} |".format(metrics["RMSE"]),
-              "STD : {:.3f} |".format(metrics["STD"]),
-              "MER : {:.3f}% |".format(metrics["MER"]),
-              "r : {:.3f} |".format(metrics["r"])
-              )
-    except:
-        print("\nTest MAE : {:.3f} |".format(metrics["MAE"]))
+
+    print("\nTest MAE : {:.3f} |".format(metrics["MAE"]),
+          "RMSE : {:.3f} |".format(metrics["RMSE"]),
+          "STD : {:.3f} |".format(metrics["STD"]),
+          "MER : {:.3f}% |".format(metrics["MER"]),
+          "r : {:.3f} |".format(metrics["r"])
+          )
+
 
 def run():
     begin_epoch = 1
