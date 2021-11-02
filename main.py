@@ -237,13 +237,13 @@ def run():
         test()
 
 if __name__ == "__main__":
-    run()
-    # it = iter(train_loader)
-    # data, bpm, fps, bvp, idx = next(it)
-    # print(data.shape)
-    # print(bpm)
-    # print(fps)
-    # print(bvp)
+    #run()
+    it = iter(train_loader)
+    data, bpm, fps, bvp, idx = next(it)
+    print(data.shape)
+    print(bpm)
+    print(fps)
+    print(bvp)
 
 
 
