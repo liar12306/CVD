@@ -124,8 +124,8 @@ def save_maps(st_map, video_dir, prefix, fps):
 
         # 每分钟心跳次数
 
-        # bpm = (gt_tmp/60) * (clip_length / fps)
-        bpm = gt_tmp
+        bpm = (gt_tmp/60) * (clip_length / fps)
+        #bpm = gt_tmp
         #
         bvp_begin = int(start_idx / frame_num * len(bvp_data))
         bvp_len = math.ceil(clip_length / frame_num * len(bvp_data))
