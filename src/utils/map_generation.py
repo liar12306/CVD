@@ -34,25 +34,25 @@ def map_generation():
             if prefix in processed:
                 continue
             video_dir = config.video_path + path
-            # create_map(video_dir, prefix)
+            create_map(video_dir, prefix)
 
-            video_path = video_dir + "video.avi"
-
-            if not os.path.exists(video_path):
-                continue
-            # 获取每个视频人脸关键点数据并保存
-            # 获取视频帧
-            frames, fps = get_frames_and_video_meta_data(video_path)
-            landmarks_path = video_dir+"landmarks68/"
-            if not os.path.exists(landmarks_path):
-                    os.mkdir(landmarks_path)
-            else:
-                print(video_dir)
-                continue
-            for idx, frame in enumerate(frames):
-                landmarks = get_faces_landmarks(frame)
-                landmarks = np.swapaxes(landmarks,1,0)
-                scio.savemat(landmarks_path+"{}.mat".format(idx), {"landmarks": landmarks})
+            # video_path = video_dir + "video.avi"
+            #
+            # if not os.path.exists(video_path):
+            #     continue
+            # # 获取每个视频人脸关键点数据并保存
+            # # 获取视频帧
+            # frames, fps = get_frames_and_video_meta_data(video_path)
+            # landmarks_path = video_dir+"landmarks68/"
+            # if not os.path.exists(landmarks_path):
+            #         os.mkdir(landmarks_path)
+            # else:
+            #     print(video_dir)
+            #     continue
+            # for idx, frame in enumerate(frames):
+            #     landmarks = get_faces_landmarks(frame)
+            #     landmarks = np.swapaxes(landmarks,1,0)
+            #     scio.savemat(landmarks_path+"{}.mat".format(idx), {"landmarks": landmarks})
 
 
 
