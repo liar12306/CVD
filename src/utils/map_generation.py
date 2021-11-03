@@ -47,6 +47,7 @@ def map_generation():
             if not os.path.exists(landmarks_path):
                     os.mkdir(landmarks_path)
             else:
+                print(video_dir)
                 continue
             for idx, frame in enumerate(frames):
                 landmarks = get_faces_landmarks(frame)
