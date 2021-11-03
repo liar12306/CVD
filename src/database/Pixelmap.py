@@ -11,7 +11,7 @@ import scipy.io as sio
 from PIL import Image
 
 import torchvision.transforms.functional as transF
-import random;
+import random
 
 
 # from skimage import io, transform
@@ -19,11 +19,11 @@ import random;
 class PixelMap_fold_STmap(Dataset):
     def __init__(self, root_dir, Training=True, transform=None, VerticalFlip=False, video_length=300):
 
-        self.train = Training;
-        self.root_dir = root_dir;
-        self.transform = transform;
-        self.video_length = video_length;
-        self.VerticalFlip = VerticalFlip;
+        self.train = Training
+        self.root_dir = root_dir
+        self.transform = transform
+        self.video_length = video_length
+        self.VerticalFlip = VerticalFlip
         self.data_list = []
         for fn in os.listdir(self.root_dir):
             self.data_list.append(fn)
@@ -38,8 +38,8 @@ class PixelMap_fold_STmap(Dataset):
 
     def __getitem__(self, idx):
 
-        img_name1 = self.data_list[idx] + '/img_rgb.png';
-        img_name2 = self.data_list[idx] + '/img_yuv.png';
+        img_name1 = self.data_list[idx] + '/img_rgb.png'
+        img_name2 = self.data_list[idx] + '/img_yuv.png'
 
         img_path1 = self.root_dir + img_name1
         img_path2 = self.root_dir + img_name2
@@ -48,26 +48,26 @@ class PixelMap_fold_STmap(Dataset):
 
         # if self.VerticalFlip:
         #     if random.random() < 0.5:
-        #         feature_map1 = transF.vflip(feature_map1);
-        #         feature_map2 = transF.vflip(feature_map2);
+        #         feature_map1 = transF.vflip(feature_map1)
+        #         feature_map2 = transF.vflip(feature_map2)
 
         if self.transform:
             feature_map1 = self.transform(feature_map1)
             feature_map2 = self.transform(feature_map2)
 
-        feature_map = torch.cat((feature_map1, feature_map2), dim=0);
+        feature_map = torch.cat((feature_map1, feature_map2), dim=0)
 
-        bpm_path = self.root_dir + self.data_list[idx] + '/bpm.mat';
-        bpm = sio.loadmat(bpm_path)['bpm'];
-        bpm = bpm.astype('float32');
+        bpm_path = self.root_dir + self.data_list[idx] + '/bpm.mat'
+        bpm = sio.loadmat(bpm_path)['bpm']
+        bpm = bpm.astype('float32')
 
-        fps_path = self.root_dir + self.data_list[idx] + '/fps.mat';
-        fps = sio.loadmat(fps_path)['fps'];
-        fps = fps.astype('float32');
+        fps_path = self.root_dir + self.data_list[idx] + '/fps.mat'
+        fps = sio.loadmat(fps_path)['fps']
+        fps = fps.astype('float32')
 
-        bvp_path = self.root_dir + self.data_list[idx] + '/bvp.mat';
-        bvp = sio.loadmat(bvp_path)['bvp'];
-        bvp = bvp.astype('float32');
-        bvp = bvp[0];
+        bvp_path = self.root_dir + self.data_list[idx] + '/bvp.mat'
+        bvp = sio.loadmat(bvp_path)['bvp']
+        bvp = bvp.astype('float32')
+        bvp = bvp[0]
 
-        return (feature_map, bpm, fps, bvp, idx);
+        return (feature_map, bpm, fps, bvp, idx)
