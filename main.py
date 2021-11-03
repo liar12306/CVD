@@ -133,10 +133,13 @@ def train(epoch):
     predict_hr = []
     for batch_idx, (data, bpm, fps, bvp, idx) in enumerate(train_loader):
         count += 1
+        if data.shape[0] == 1:
+            continue
         data = Variable(data)
         bvp = Variable(bvp)
         bpm = Variable(bpm.view(-1, 1))
         fps = Variable(fps.view(-1, 1))
+        
         if torch.cuda.is_available():
             data, bpm = data.cuda(), bpm.cuda()
             fps = fps.cuda()
@@ -146,10 +149,18 @@ def train(epoch):
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
-        gt_hr.append(bpm[0].item()*fps[0].item()*60/video_length)
-        gt_hr.append(bpm[1].item()*fps[1].item()*60/video_length)
-        predict_hr.append(output[0].item()*fps[0].item()*60/video_length)
-        predict_hr.append(output[1].item()*fps[1].item()*60/video_length)
+        hr_item = bpm[0].item()
+        fps_item = fps[0].item()
+        gt_hr.append(hr_item*fps_item*60/video_length)
+        hr_item = bpm[1].item()
+        fps_item = fps[1].item()
+        gt_hr.append(hr_item*fps_item*60/video_length)
+        hr_item = output[0].item()
+        fps_item = fps[0].item()
+        predict_hr.append(hr_item*fps_item*60/video_length)
+        hr_item = output[1].item()
+        fps_item = fps[1].item()
+        predict_hr.append(hr_item*fps_item*60/video_length)
 
         loss_hr = lossfunc_HR(output, bpm) * lambda_hr
         loss_img = lossfunc_img(data, img_out) * lambda_img
@@ -205,10 +216,19 @@ def test():
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(
             data)
-        gt_hr.append(hr[0].item()*fps[0].item()*60/video_length)
-        gt_hr.append(hr[1].item()*fps[1].item()*60/video_length)
-        predict_hr.append(output[0].item()*fps[0].item()*60/video_length)
-        predict_hr.append(output[1].item()*fps[1].item()*60/video_length)
+        hr_item = hr[0].item()
+        fps_item = fps[0].item()
+        gt_hr.append(hr_item*fps_item*60/video_length)
+        hr_item = hr[1].item()
+        fps_item = fps[1].item()
+        gt_hr.append(hr_item*fps_item*60/video_length)
+        hr_item = output[0].item()
+        fps_item = fps[0].item()
+        predict_hr.append(hr_item*fps_item*60/video_length)
+        hr_item = output[1].item()
+        fps_item = fps[1].item()
+        predict_hr.append(hr_item*fps_item*60/video_length)
+        
         loss = lossfunc_HR(output, hr)
 
         test_loss += loss.item()
@@ -237,13 +257,17 @@ def run():
         test()
 
 if __name__ == "__main__":
-    #run()
-    it = iter(train_loader)
-    data, bpm, fps, bvp, idx = next(it)
-    print(data.shape)
-    print(bpm)
-    print(fps)
-    print(bvp)
+    run()
+    # it = iter(train_loader)
+    # data, bpm, fps, bvp, idx = next(it)
+    # data = Variable(data)
+    # bvp = Variable(bvp)
+    # bpm = Variable(bpm.view(-1, 1))
+    # fps = Variable(fps.view(-1, 1))
+    # print(data.shape)
+    # print(bpm[0].item())
+    # print(fps[0].item())
+    # print(bvp.shape)
 
 
 
