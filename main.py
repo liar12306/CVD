@@ -17,6 +17,7 @@ from torchvision import transforms, utils
 import scipy.io as sio
 import torchvision.models as models
 from torch.optim.lr_scheduler import MultiStepLR
+import time
 
 sys.path.append('..');
 
@@ -81,6 +82,7 @@ lossfunc_SNR = SNR_loss(clip_length = video_length, loss_type = 7);
 optimizer = torch.optim.Adam([{'params': net.parameters(), 'lr': 0.0005}]);
 
 def train():
+    start_time = time.time()
     net.train();
     train_loss = 0;
     count = 0
@@ -118,8 +120,10 @@ def train():
         optimizer.zero_grad()
         loss.backward()
         optimizer.step();
-
-    print("\nTrain Loss : {:4}".format(train_loss/count))
+    end_time = time.time()
+    cost_time = end_time-start_time
+    print("\nTrain Loss : {:4}".format(train_loss/count),
+          "Cost time:{}m:{}s".format(int(cost_time/60),int(cost_time%60)))
 
 def test():
     net.eval()
@@ -147,7 +151,6 @@ def run():
 
             train_loader = DataLoader(train_dataset, batch_size=batch_size_num,
                                       shuffle=True, num_workers=4);
-
         train();
         test();
 
