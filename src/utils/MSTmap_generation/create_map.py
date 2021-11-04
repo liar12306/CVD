@@ -67,15 +67,15 @@ def create_map(video_dir, prefix):
 
     for idx, frame in enumerate(frames):
 
-        landmarks= get_faces_landmarks(frame)
-        # try:
-        rois, roi_pix_nums = process_ROI(frame, landmarks)
-        # except:
-        #     if not os.path.exists(config.PROJECT_ROOT+config.DATA_PATH):
-        #         os.mkdir(config.PROJECT_ROOT+config.DATA_PATH)
-        #     with open(config.PROJECT_ROOT + config.DATA_PATH + "fail.txt", "a+") as f:
-        #         f.write(prefix + "\n")
-        #     return
+        landmarks = get_faces_landmarks(frame)
+        try:
+            rois, roi_pix_nums = process_ROI(frame, landmarks)
+        except:
+            if not os.path.exists(config.PROJECT_ROOT+config.DATA_PATH):
+                os.mkdir(config.PROJECT_ROOT+config.DATA_PATH)
+            with open(config.PROJECT_ROOT + config.DATA_PATH + "fail.txt", "a+") as f:
+                f.write(prefix + "\n")
+            return
         st_map[idx, :, :] = get_signal_map(rois, config.ROI_NUM, roi_pix_nums)
 
     st_map = np.swapaxes(st_map, 0, 1)
