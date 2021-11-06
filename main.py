@@ -31,7 +31,7 @@ import numpy as np
 
 batch_size_num = 2
 epoch_num = 70
-learning_rate = 0.001
+learning_rate = 0.0005
 test_batch_size = 5
 
 toTensor = transforms.ToTensor()
