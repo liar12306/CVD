@@ -142,7 +142,7 @@ def train(epoch):
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(data)
 
-        for idx in bpm.shape[0]:
+        for idx in range(bpm.shape[0]):
             predict_hr.append(output[idx].item()*fps[idx].item()*60/video_length)
             gt_hr.append(bpm[idx].item()*fps[idx].item()*60/video_length)
 
@@ -192,7 +192,7 @@ def test():
 
         feat_hr, feat_n, output, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2 = net(data)
         loss = lossfunc_HR(output, hr)
-        for idx in hr.shape[0]:
+        for idx in range(hr.shape[0]):
             predict_hr.append(output[idx].item()*fps[idx].item()*60/video_length)
             gt_hr.append(hr[idx].item()*fps[idx].item()*60/video_length)
 
