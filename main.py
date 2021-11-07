@@ -18,6 +18,7 @@ import scipy.io as sio
 import torchvision.models as models
 from torch.optim.lr_scheduler import MultiStepLR
 import time
+from tqdm import tqdm
 
 sys.path.append('..')
 
@@ -128,7 +129,7 @@ def train(epoch):
     count = 0
     predict_hr = []
     gt_hr = []
-    for batch_idx, (data, bpm, fps, bvp, idx) in enumerate(train_loader):
+    for (data, bpm, fps, bvp, idx) in tqdm(train_loader):
 
         data = Variable(data)
         bvp = Variable(bvp)
@@ -221,16 +222,7 @@ def run():
 
 if __name__ == "__main__":
     run()
-    # it = iter(train_loader)
-    # data, bpm, fps, bvp, idx = next(it)
-    # data = Variable(data)
-    # bvp = Variable(bvp)
-    # bpm = Variable(bpm.view(-1, 1))
-    # fps = Variable(fps.view(-1, 1))
-    # print(data.shape)
-    # print(bpm[0].item())
-    # print(fps[0].item())
-    # print(bvp.shape)
+
 
 
 
