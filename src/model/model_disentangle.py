@@ -140,7 +140,7 @@ class HR_disentangle_cross(nn.Module):
 
         batch_size = img.size(0)
 
-        feat_hr, feat_n, hr, img_out, ecg = self.encoder_decoder(img)
+        feat_p, feat_n, hr, img_out, ecg = self.encoder_decoder(img)
 
         idx1 = torch.randint(batch_size, (batch_size,))
         idx2 = torch.randint(batch_size, (batch_size,))
@@ -148,18 +148,18 @@ class HR_disentangle_cross(nn.Module):
         idx1 = idx1.long()
         idx2 = idx2.long()
 
-        feat_hr1 = feat_hr[idx1, :, :, :]
-        feat_hr2 = feat_hr[idx2, :, :, :]
+        feat_p1 = feat_p[idx1, :, :, :]
+        feat_p2 = feat_p[idx2, :, :, :]
         feat_n1 = feat_n[idx1, :, :, :]
         feat_n2 = feat_n[idx2, :, :, :]
 
-        featf1 = feat_hr1 + feat_n2
-        featf2 = feat_hr2 + feat_n1
+        featf1 = feat_p1 + feat_n2
+        featf2 = feat_p2 + feat_n1
 
-        imgf1 = self.encoder_decoder.decoder(featf1)
-        imgf2 = self.encoder_decoder.decoder(featf2)
+        img_pes1 = self.encoder_decoder.decoder(featf1)
+        img_pes2 = self.encoder_decoder.decoder(featf2)
 
-        feat_hrf1, feat_nf2, hrf1, img_outf1, ecg1 = self.encoder_decoder(imgf1)
-        feat_hrf2, feat_nf1, hrf2, img_outf2, ecg2 = self.encoder_decoder(imgf2)
+        feat_pes_p1, feat_pes_n1, hr_pes1, img_pes_out1, ecg_pes_1 = self.encoder_decoder(img_pes1)
+        feat_pes_p2, feat_pes_n2, hr_pes2, img_pes_out2, ecg_pes_2 = self.encoder_decoder(img_pes2)
 
-        return feat_hr, feat_n, hr, img_out, feat_hrf1, feat_nf1, hrf1, idx1, feat_hrf2, feat_nf2, hrf2, idx2, ecg, ecg1, ecg2
+        return feat_p, feat_n, hr, img_out, feat_pes_p1, feat_pes_n1, hr_pes1, idx1, feat_pes_p2, feat_pes_n2, hr_pes2, idx2, ecg, ecg_pes_1, ecg_pes_2
