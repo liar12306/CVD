@@ -126,7 +126,7 @@ def train(epoch):
     predict_hr = []
     gt_hr = []
     for (data, bpm, fps, bvp, idx) in tqdm(train_loader):
-
+        count+=1
         data = Variable(data)
         bvp = Variable(bvp)
         bpm = Variable(bpm.view(-1, 1))
@@ -168,7 +168,7 @@ def train(epoch):
     cost_time = end_time - start_time
     metrics = compute_criteria(np.array(gt_hr), np.array(predict_hr))
     print(f"\nFinished [Epoch: {epoch}/{epoch_num}]",
-          "\nTraining Loss: {:.3f} |".format(train_loss),
+          "\nTraining Loss: {:.3f} |".format(train_loss/count),
           "MAE : {:.3f} |".format(metrics["MAE"]),
           "RMSE : {:.3f} |".format(metrics["RMSE"]),
           "STD : {:.3f} |".format(metrics["STD"]),
@@ -199,7 +199,7 @@ def test():
 
         test_loss += loss.item()
     metrics = compute_criteria(np.array(gt_hr), np.array(predict_hr))
-    print("\nTest Loss: {:.3f} |".format(test_loss),
+    print("\nTest Loss: {:.3f} |".format(test_loss/count),
           "MAE : {:.3f} |".format(metrics["MAE"]),
           "RMSE : {:.3f} |".format(metrics["RMSE"]),
           "STD : {:.3f} |".format(metrics["STD"]),
@@ -223,7 +223,7 @@ def run():
 
 
 if __name__ == "__main__":
-    # run()
-    it = iter(train_loader)
-    data = next(it)
-    print(data[0].shape)
+    run()
+    # it = iter(train_loader)
+    # data = next(it)
+    # print(data[0].shape)

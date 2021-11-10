@@ -31,7 +31,7 @@ class PixelMap_fold_STmap(Dataset):
         if Training:
             self.data_list = self.data_list[0: train_test_split]
         else:
-            self.data_list = self.data_list[train_test_split: len(self.data_list)*0.1]
+            self.data_list = self.data_list[train_test_split: int(len(self.data_list)*0.1)]
 
     def __len__(self):
         return len(self.data_list)
