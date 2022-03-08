@@ -29,31 +29,29 @@ def get_faces_landmarks(frame):
     for idx in range(68):
         landmarks[idx][0] = landmark_data[idx].x
         landmarks[idx][1] = landmark_data[idx].y
-    # cv2.rectangle(frame, (face.x, face.y), (face.x + face.width, face.y + face.height), (255, 0, 0), 2)
-
+    landx = landmarks[:,0]
+    landy = landmarks[:,1]
+    # cv2.rectangle(frame, (face.x, face.y), (face.x + face.width, face.y + face.height), (255, 0, 0), 1)
+    #
     # for landmark in landmarks:
-    #     cv2.circle(frame, (landmark[0], landmark[1]), 5, (255, 0, 0), -1)
-
-    # face_x = min(face.x, landmarks[:, 0].min())
-    # face_y = min(face.y, landmarks[:, 1].min())
-    # face_h = max(face.height, landmarks[:, 0].max())
-    # face_w = max(face.width, landmarks[:, 1].max())
+    #     cv2.circle(frame, (landmark[0], landmark[1]), 1, (255, 0, 0), -1)
+    #
+    face_x = face.x
+    face_y = face.y
+    face_h = face.height
+    face_w = face.width
     # landmarks[:, 0] = landmarks[:, 0] - face_x
     # landmarks[:, 1] = landmarks[:, 1] - face_y
     # cv2.circle(frame, (face_x, face_y), 10, (0, 255, 0), -1)
-    # print(landmarks)
-    # print(face.x,face.height)
-    # print(face.y,face.width)
     # faces.append(frame[face.y:face.y+face.height, face.x:face.x+face.width,:])
-    # cv2.rectangle(frame, (face.x, face.y), (face_h, face_w), (255, 0, 0), 2)
+    # #cv2.rectangle(frame, (face.x, face.y), (face_h, face_w), (255, 0, 0), 2)
     # plt.figure()
     # plt.imshow(frame[face_y:face_w, face_x:face_h,:])
-
-    # plt.imshow(frame)
+    # #plt.imshow(frame)
     # plt.show()
-    # landmarks[:,0] = landmarks[:,0]-face.x
-    # landmarks[:,1] = landmarks[:,1]-face.y
-    return landmarks
+    landmarks[:,0:1] = landmarks[:,0:1]-face.x
+    landmarks[:,1:] = landmarks[:,1:]-face.y
+    return frame[face_y:face_y+face_h, face_x:face_x+face_w, :], landmarks
 
 
 def process_ROI(face, landmarks):

@@ -60,6 +60,7 @@ def get_frames_and_video_meta_data(video_path, meta_data_only=False):
     return frames, frameRate
 
 if __name__ == "__main__":
-    video_path = config.PROJECT_ROOT+config.DATA_PATH+"video.avi"
-    data = get_frames_and_video_meta_data(video_path, True)
+    # video_path = config.PROJECT_ROOT+config.DATA_PATH+"video.avi"
+    # data = get_frames_and_video_meta_data(video_path, True)
     # print("frameRate:{}\nsliding_window_stride: {}\nnum_frames: {}\n".format(data["frame_rate"],data["sliding_window_stride"],data["num_frames"]))
+    path = "F:/python/rppg/data/VIPL/p1/v1/source1/video.avi"

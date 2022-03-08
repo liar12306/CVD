@@ -156,12 +156,71 @@ def save_maps(st_map, video_dir, prefix, fps):
             cv2.imwrite(save_path + "/rgb_map.png", train_data['rgb_map'])
             cv2.imwrite(save_path + "/yuv_map.png", train_data['yuv_map'])
 
+def process_skin(face, landmarks):
+    skin = []
+    h, w, c = face.shape
+    # le_x1 = np.min(landmarks[17:22,:1])
+    # le_y1 = np.min(landmarks[17:22,1:])
+    # le_x2 = np.max(landmarks[17:22,:1])
+    # le_y2 = np.max(landmarks[36:42, 1:])+5
+    #
+    # re_x1 = np.min(landmarks[22:27, :1])
+    # re_y1 = np.min(landmarks[22:27, 1:])
+    # re_x2 = np.max(landmarks[22:27, :1])
+    # re_y2 = np.max(landmarks[42:48, 1:]) + 5
+    #
+    # me_x1 = np.min(landmarks[48:69, :1])
+    # me_y1 = np.min(landmarks[48:69, 1:])
+    # me_x2 = np.max(landmarks[48:69, :1])
+    # me_y2 = np.max(landmarks[48:69, 1:]) + 5
+    # face[re_y1:re_y2,re_x1:re_x2] = 0
+    # face[le_y1:le_y2, le_x1:le_x2] = 0
+    # face[me_y1:me_y2, me_x1:me_x2] = 0
+
+    ROI = {
+        "skin": [0, 1, 2, 3, 4, 5,6,7,8,9,10,11,12,13,14,15,16,26,25,24,23,22,21,20,19,18,17],
+        "l":[36,37,38,39,40,41],
+        "r":[42,43,44,45,46,47],
+        "m":[48,49,50,51,52,53,54,55,56,57,58,59,60]
+    }
+    forehead_lmks_idx = [17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+    forehead = landmarks[forehead_lmks_idx]
+    l = np.mean(landmarks[36:42], axis=0)
+    r = np.mean(landmarks[42:48], axis=0)
+    e_dis = linalg.norm(l - r)
+    tmp = (np.mean(landmarks[17:22], axis=0) + np.mean(landmarks[22:27], axis=0)) / 2 - (l + r) / 2
+    tmpp = e_dis / linalg.norm(tmp) * 0.6 * tmp
+    ROI["forehead"] = list(forehead)
+    ROI["forehead"].append(np.array(forehead[-1]) + tmpp)
+    ROI["forehead"].append(np.array(forehead[-0]) + tmpp)
+    ROI["forehead"].append(np.array(forehead[0]))
+    rois = []
+    for key in ROI:
+        mask = np.zeros(face.shape, dtype="uint8")
+        # 掩膜
+        if key == "forehead":
+            cv2.fillPoly(mask, np.array([ROI[key]], dtype=np.int32), (255, 255, 255))
+        else:
+            cv2.fillPoly(mask, np.array([landmarks[ROI[key]]], dtype=np.int32), (255, 255, 255))
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+        roi = np.zeros((h, w, 3),dtype="uint8")
+        roi[:, :, :] = cv2.bitwise_and(face, face, mask=mask)
+        rois.append(roi)
+    target = rois[0]-rois[1]-rois[2]-rois[3]+rois[4]
+
+
+    plt.imshow(target)
+    plt.show()
+
+
 
 if __name__ == "__main__":
     start_time = time.time()
-    video_dir = config.video_path + "p1/v1/source1/"
-
-    create_map(video_dir, "p1_v1_source1_")
+    path = "F:/python/rppg/data/VIPL/p1/v1/source1/video.avi"
+    frames, fps = get_frames_and_video_meta_data(path)
+    frame = cv2.cvtColor(frames[2], cv2.COLOR_BGR2RGB)
+    face, landmarks = get_faces_landmarks(frame)
+    process_skin(face,landmarks)
     end_time = time.time()
     cost = int(end_time - start_time)
     print("\n{} m : {} s".format(int(cost / 60), cost % 60))
